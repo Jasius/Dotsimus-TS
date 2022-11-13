@@ -1,4 +1,5 @@
 import { ActivityType, Events } from 'discord.js';
+
 import { DotsimusClient } from '../structures/DotsimusClient';
 import { Event } from '../structures/Event';
 

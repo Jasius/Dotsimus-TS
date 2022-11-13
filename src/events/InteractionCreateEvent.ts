@@ -1,11 +1,4 @@
-import {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    CommandInteraction,
-    Events,
-    InteractionReplyOptions
-} from 'discord.js';
+import { CommandInteraction, Events, InteractionReplyOptions } from 'discord.js';
 
 import { ohSimusAsset } from '../constants';
 import { DotsimusClient } from '../structures/DotsimusClient';

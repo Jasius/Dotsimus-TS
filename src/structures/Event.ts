@@ -1,4 +1,5 @@
 import { ClientEvents } from 'discord.js';
+
 import { DotsimusClient } from './DotsimusClient';
 
 interface EventOptions {

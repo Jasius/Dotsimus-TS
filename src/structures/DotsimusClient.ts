@@ -3,10 +3,9 @@ import { ApplicationCommandData, Client, Collection } from 'discord.js';
 import glob from 'glob';
 import { Logger } from 'pino';
 
-import { clientOptions } from '../constants';
+import { clientOptions, isProd } from '../constants';
 import { ClientUtil } from '../utils/ClientUtil';
 import logger from '../utils/logger';
-import { isProd } from '../constants';
 import { Command } from './Command';
 import { Event } from './Event';
 

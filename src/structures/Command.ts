@@ -8,6 +8,7 @@ import {
     SlashCommandOptionsOnlyBuilder,
     SlashCommandSubcommandsOnlyBuilder
 } from 'discord.js';
+
 import { DotsimusClient } from './DotsimusClient';
 
 interface CommandOptions {

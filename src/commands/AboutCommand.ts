@@ -4,13 +4,11 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     EmbedBuilder,
-    InteractionResponse,
     SlashCommandBuilder,
     time,
     TimestampStyles
 } from 'discord.js';
 
-import { isProd } from '../constants';
 import { Command, CommandResponse } from '../structures/Command';
 import { DotsimusClient } from '../structures/DotsimusClient';
 
