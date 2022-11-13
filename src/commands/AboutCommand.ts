@@ -98,7 +98,7 @@ export default class AboutCommand extends Command {
                 },
                 {
                     name: 'Commands',
-                    value: 'You can see a lsit of available commands and their use by typing `/` in the chat.'
+                    value: 'You can see a list of available commands and their use by typing `/` in the chat.'
                 }
             )
             .setURL('https://dotsimus.com/');
