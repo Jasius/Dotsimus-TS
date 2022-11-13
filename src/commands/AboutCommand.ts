@@ -142,7 +142,7 @@ export default class AboutCommand extends Command {
                 .setURL('https://top.gg/bot/731190736996794420#reviews')
                 .setStyle(ButtonStyle.Link),
             new ButtonBuilder()
-                .setLabel('Join Support')
+                .setLabel('Join Dotsimus Server')
                 .setURL('https://discord.gg/XAFXecKFRG')
                 .setStyle(ButtonStyle.Link)
         );
