@@ -1,0 +1,5 @@
+{
+    "exec": "ts-node ./src",
+    "ext": "ts,json",
+    "watch": ["./src/**/*"]
+}

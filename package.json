@@ -1,0 +1,22 @@
+{
+    "name": "dotsimus-ts",
+    "version": "0.0.1",
+    "repository": "https://github.com/Jasius/Dotsimus-TS",
+    "description": "Automatic moderation of toxic chat messages.",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "pm2 flush && pm2 start ecosystem.config.cjs --env production",
+        "start:dev": "cross-env NODE_ENV=development nodemon",
+        "start:prod": "tsc && pnpm start"
+    },
+    "author": "Mindaugas Jasiulis",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^18.11.9",
+        "cross-env": "^7.0.3",
+        "nodemon": "^2.0.20",
+        "ts-node": "^10.9.1",
+        "tslib": "^2.4.1",
+        "typescript": "^4.8.4"
+    }
+}
