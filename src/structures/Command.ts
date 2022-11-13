@@ -1,12 +1,14 @@
-import { DotsimusClient } from './DotsimusClient';
 import {
     ApplicationCommandType,
     ChatInputApplicationCommandData,
     CommandInteraction,
+    InteractionResponse,
+    Message,
     PermissionResolvable,
     SlashCommandOptionsOnlyBuilder,
     SlashCommandSubcommandsOnlyBuilder
 } from 'discord.js';
+import { DotsimusClient } from './DotsimusClient';
 
 interface CommandOptions {
     name: string;
@@ -16,6 +18,8 @@ interface CommandOptions {
     userPermissions?: PermissionResolvable;
     dmPermission?: boolean;
 }
+
+export type CommandResponse = Message | InteractionResponse;
 
 export abstract class Command implements CommandOptions {
     client: DotsimusClient<true>;
@@ -47,5 +51,5 @@ export abstract class Command implements CommandOptions {
         };
     }
 
-    abstract execute(interaction: CommandInteraction): Promise<any>;
+    abstract execute(interaction: CommandInteraction): Promise<CommandResponse>;
 }

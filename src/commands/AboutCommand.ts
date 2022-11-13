@@ -1,17 +1,17 @@
-import Topgg from '@top-gg/sdk';
 import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
     EmbedBuilder,
+    InteractionResponse,
     SlashCommandBuilder,
     time,
     TimestampStyles
 } from 'discord.js';
 
 import { isProd } from '../constants';
-import { Command } from '../structures/Command';
+import { Command, CommandResponse } from '../structures/Command';
 import { DotsimusClient } from '../structures/DotsimusClient';
 
 export default class AboutCommand extends Command {
@@ -43,30 +43,26 @@ export default class AboutCommand extends Command {
         });
     }
 
-    async execute(interaction: ChatInputCommandInteraction): Promise<any> {
+    async execute(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         switch (interaction.options.getSubcommand()) {
             case 'me':
-                await this.executeMe(interaction);
-                break;
+                return this.executeMe(interaction);
             case 'uptime':
-                await this.executeUptime(interaction);
-                break;
+                return this.executeUptime(interaction);
             case 'ping':
-                await this.executePing(interaction);
-                break;
+                return this.executePing(interaction);
             case 'restart':
-                await this.executeRestart(interaction);
-                break;
-            case 'usage':
-                // TODO: Implement
-                break;
+                return this.executeRestart(interaction);
+            // case 'usage':
+            // TODO: Implement usage
             case 'submit-a-review':
-                await this.executeSubmitReview(interaction);
-                break;
+                return this.executeSubmitReview(interaction);
+            default:
+                return interaction.reply({ content: 'Subcommand not implemented.', ephemeral: true });
         }
     }
 
-    async executeMe(interaction: ChatInputCommandInteraction) {
+    async executeMe(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         const guilds = this.client.guilds.cache;
 
         const totalMemberCount = guilds.map((g) => g.memberCount).reduce((a, b) => a + b);
@@ -101,41 +97,41 @@ export default class AboutCommand extends Command {
                     value: 'You can see a list of available commands and their use by typing `/` in the chat.'
                 }
             )
-            .setURL('https://dotsimus.com/');
+            .setURL('https://dotsimus.com');
 
-        if (isProd) {
-            this.client.topgg.postStats({ serverCount: guilds.size });
-        }
+        await this.client.topgg?.postStats({ serverCount: guilds.size });
 
         return interaction.reply({ embeds: [embed], components: [row] });
     }
 
-    async executeUptime(interaction: ChatInputCommandInteraction): Promise<any> {
+    async executeUptime(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         const startupTimestamp = Math.round((Date.now() - this.client.uptime) / 1000);
         const timestamp = time(startupTimestamp, TimestampStyles.RelativeTime);
 
         return interaction.reply(`Bot restarted ${timestamp}.`);
     }
 
-    async executePing(interaction: ChatInputCommandInteraction): Promise<any> {
+    async executePing(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         const sent = await interaction.deferReply({ fetchReply: true });
         const rtl = sent.createdTimestamp - interaction.createdTimestamp;
 
-        return interaction.editReply(`Websocket heartbeat: \`${this.client.ws.ping}ms\`\nRoundtrip latency: \`${rtl}ms\``);
+        return interaction.editReply(
+            `Websocket heartbeat: \`${this.client.ws.ping}ms\`\nRoundtrip latency: \`${rtl}ms\``
+        );
     }
 
-    async executeRestart(interaction: ChatInputCommandInteraction): Promise<any> {
+    async executeRestart(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         const application = await this.client.application.fetch();
 
-        if (interaction.user.id === application.owner?.id) {
-            await interaction.reply('Restarting..');
-            process.exit(0);
-        } else {
+        if (interaction.user.id !== application.owner?.id) {
             return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: true });
         }
+
+        await interaction.reply('Restarting..');
+        process.exit(0);
     }
 
-    async executeSubmitReview(interaction: ChatInputCommandInteraction): Promise<any> {
+    async executeSubmitReview(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setLabel('Submit a review')

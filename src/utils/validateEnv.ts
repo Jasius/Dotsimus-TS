@@ -5,7 +5,7 @@ import Joi from 'joi';
         .keys({
             NODE_ENV: Joi.string().valid('development', 'production').required(),
             DISCORD_TOKEN: Joi.string().required(),
-            TOPGG_TOKEN: Joi.string().required()
+            TOPGG_TOKEN: Joi.string().optional()
         })
         .unknown();
 

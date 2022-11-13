@@ -13,7 +13,7 @@ import { Event } from './Event';
 export class DotsimusClient<Ready extends boolean = boolean> extends Client<Ready> {
     commands: Collection<string, Command>;
     logger: Logger;
-    topgg: Topgg.Api;
+    topgg?: Topgg.Api;
     util: ClientUtil;
 
     constructor() {
@@ -21,7 +21,7 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 
         this.commands = new Collection();
         this.logger = logger;
-        this.topgg = new Topgg.Api(process.env.TOPGG_TOKEN!);
+        this.topgg = isProd ? new Topgg.Api(process.env.TOPGG_TOKEN!) : undefined;
         this.util = new ClientUtil(this);
     }
 
