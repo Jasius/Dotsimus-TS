@@ -61,7 +61,7 @@ export default class AboutCommand extends Command {
                 // TODO: Implement
                 break;
             case 'submit-a-review':
-                // TODO: Implement
+                await this.executeSubmitReview(interaction);
                 break;
         }
     }
@@ -132,5 +132,26 @@ export default class AboutCommand extends Command {
         } else {
             interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: true });
         }
+    }
+
+    async executeSubmitReview(interaction: ChatInputCommandInteraction): Promise<any> {
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+                .setLabel('Submit a review')
+                .setURL(
+                    'https://top.gg/bot/731190736996794420#reviews'
+                )
+                .setStyle(ButtonStyle.Link),
+            new ButtonBuilder()
+                .setLabel('Join Support')
+                .setURL('https://discord.gg/XAFXecKFRG')
+                .setStyle(ButtonStyle.Link)
+        );
+
+        interaction.reply({
+            content: `Reviews significantly help to amplify the voice of the users and help to find focus areas for further Dotsimus development, if you\'d like to leave some feedback please do so on [top.gg](https://top.gg/bot/731190736996794420#reviews). It\'s highly appreciated ☺️!`,
+            components: [row],
+            ephemeral: true
+        });
     }
 }
