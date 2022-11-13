@@ -1,23 +1,42 @@
-import { Client, GatewayIntentBits, Partials } from 'discord.js';
+import { Client } from 'discord.js';
+import glob from 'glob';
+import { Logger } from 'pino';
+
+import { clientOptions } from '../constants';
+import { ClientUtil } from '../utils/ClientUtil';
+import logger from '../utils/logger';
+import { isProd } from './../constants';
+import { Event } from './Event';
 
 export class DotsimusClient extends Client {
-    constructor() {
-        super({
-            intents: [
-                GatewayIntentBits.Guilds,
-                GatewayIntentBits.GuildMessages,
-                GatewayIntentBits.DirectMessages,
-                GatewayIntentBits.GuildMessageTyping,
-                GatewayIntentBits.GuildPresences
-            ],
-            partials: [Partials.Channel]
-        });
+    logger: Logger;
+    util: ClientUtil;
 
-        // TODO: Add event handler
-        this.on('ready', (c: Client<true>) => console.log(`Logged in as ${c.user.tag}.`));
+    constructor() {
+        super(clientOptions);
+
+        this.logger = logger;
+        this.util = new ClientUtil(this);
+    }
+
+    async handleEvents(): Promise<void> {
+        const files = glob.sync(`${isProd ? 'dist' : 'src'}/events/**/*.{js,ts}`);
+
+        for (const file of files) {
+            const event = await this.util.importStructure<Event>(file);
+
+            if (!event) continue;
+
+            if (event.once) {
+                this.once(event.name, event.execute.bind(null, this));
+            } else {
+                this.on(event.name, event.execute.bind(null, this));
+            }
+        }
     }
 
     async start(token?: string): Promise<void> {
+        await this.handleEvents();
         await this.login(token);
     }
 }
