@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import './utils/validateEnv';
 
 import { DotsimusClient } from './structures/DotsimusClient';
 

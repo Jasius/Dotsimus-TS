@@ -2,17 +2,17 @@
     "compilerOptions": {
         "target": "ESNext",
         "module": "ESNext",
-        "moduleResolution": "node",
+        "moduleResolution": "Node",
         "lib": ["ESNext"],
         "strict": true,
-        "outDir": "build",
+        "outDir": "./build",
         "esModuleInterop": true,
         "skipLibCheck": true,
         "importHelpers": true,
         "resolveJsonModule": true,
         "baseUrl": "./src",
-        "typeRoots": ["node_modules/@types", "src/typings"]
+        "typeRoots": ["./node_modules/@types", "./typings"]
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "include": ["./src/**/*"],
+    "exclude": ["./node_modules"]
 }

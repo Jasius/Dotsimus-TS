@@ -3,12 +3,12 @@ import { DotsimusClient } from '../structures/DotsimusClient';
 import { Event } from '../structures/Event';
 
 export default class ReadyEvent extends Event {
-    constructor() {
-        super({ name: Events.ClientReady, once: true });
+    constructor(client: DotsimusClient) {
+        super(client, { name: Events.ClientReady, once: true });
     }
 
-    async execute(client: DotsimusClient): Promise<any> {
-        if (!client.isReady()) return;
+    async execute(client: DotsimusClient<true>): Promise<void> {
+        await client.handleCommands();
 
         client.logger.info(`Logged in as ${client.user.tag}.`);
     }

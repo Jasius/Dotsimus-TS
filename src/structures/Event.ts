@@ -1,4 +1,5 @@
 import { ClientEvents } from 'discord.js';
+import { DotsimusClient } from './DotsimusClient';
 
 interface EventOptions {
     name: keyof ClientEvents;
@@ -6,10 +7,12 @@ interface EventOptions {
 }
 
 export abstract class Event implements EventOptions {
+    client: DotsimusClient;
     name: keyof ClientEvents;
     once?: boolean;
 
-    constructor(options: EventOptions) {
+    constructor(client: DotsimusClient, options: EventOptions) {
+        this.client = client;
         this.name = options.name;
         this.once = options.once;
     }
