@@ -107,30 +107,31 @@ export default class AboutCommand extends Command {
             this.client.topgg.postStats({ serverCount: guilds.size });
         }
 
-        interaction.reply({ embeds: [embed], components: [row] });
+        return interaction.reply({ embeds: [embed], components: [row] });
     }
 
     async executeUptime(interaction: ChatInputCommandInteraction): Promise<any> {
         const startupTimestamp = Math.round((Date.now() - this.client.uptime) / 1000);
         const timestamp = time(startupTimestamp, TimestampStyles.RelativeTime);
 
-        interaction.reply(`Bot restarted ${timestamp}.`);
+        return interaction.reply(`Bot restarted ${timestamp}.`);
     }
 
     async executePing(interaction: ChatInputCommandInteraction): Promise<any> {
         const sent = await interaction.deferReply({ fetchReply: true });
         const rtl = sent.createdTimestamp - interaction.createdTimestamp;
 
-        interaction.editReply(`Websocket heartbeat: \`${this.client.ws.ping}ms\`\nRoundtrip latency: \`${rtl}ms\``);
+        return interaction.editReply(`Websocket heartbeat: \`${this.client.ws.ping}ms\`\nRoundtrip latency: \`${rtl}ms\``);
     }
 
     async executeRestart(interaction: ChatInputCommandInteraction): Promise<any> {
         const application = await this.client.application.fetch();
 
         if (interaction.user.id === application.owner?.id) {
-            interaction.reply('Restarting..').then(() => process.exit(0));
+            await interaction.reply('Restarting..');
+            process.exit(0);
         } else {
-            interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: true });
+            return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: true });
         }
     }
 
@@ -138,9 +139,7 @@ export default class AboutCommand extends Command {
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setLabel('Submit a review')
-                .setURL(
-                    'https://top.gg/bot/731190736996794420#reviews'
-                )
+                .setURL('https://top.gg/bot/731190736996794420#reviews')
                 .setStyle(ButtonStyle.Link),
             new ButtonBuilder()
                 .setLabel('Join Support')
@@ -148,8 +147,8 @@ export default class AboutCommand extends Command {
                 .setStyle(ButtonStyle.Link)
         );
 
-        interaction.reply({
-            content: `Reviews significantly help to amplify the voice of the users and help to find focus areas for further Dotsimus development, if you\'d like to leave some feedback please do so on [top.gg](https://top.gg/bot/731190736996794420#reviews). It\'s highly appreciated ☺️!`,
+        return interaction.reply({
+            content: `Reviews significantly help to amplify the voice of the users and help to find focus areas for further Dotsimus development, if you\'d like to leave some feedback please do so on [top.gg](https://top.gg/bot/731190736996794420#reviews). It\'s highly appreciated!`,
             components: [row],
             ephemeral: true
         });
