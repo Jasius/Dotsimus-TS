@@ -1,6 +1,5 @@
-import { AttachmentBuilder, ClientOptions, GatewayIntentBits, Partials } from 'discord.js';
-
-export const clientOptions: ClientOptions = {
+import { GatewayIntentBits, Partials } from 'discord.js';
+export const clientOptions = {
     intents: [
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.Guilds,
@@ -11,6 +10,4 @@ export const clientOptions: ClientOptions = {
     ],
     partials: [Partials.Channel]
 };
-
 export const isProd = process.env.NODE_ENV === 'production';
-export const ohSimusAsset = new AttachmentBuilder('assets/images/ohsimus.png');
