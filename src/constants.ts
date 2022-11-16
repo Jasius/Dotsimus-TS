@@ -9,7 +9,7 @@ export const clientOptions: ClientOptions = {
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.MessageContent
     ],
-    partials: [Partials.Channel]
+    partials: [Partials.Channel, Partials.User]
 };
 
 export const isProd = process.env.NODE_ENV === 'production';

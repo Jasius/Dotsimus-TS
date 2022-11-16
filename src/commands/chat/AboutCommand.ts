@@ -2,15 +2,16 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    ChatInputCommandInteraction,
     EmbedBuilder,
     SlashCommandBuilder,
     time,
-    TimestampStyles
+    TimestampStyles,
+    type ChatInputCommandInteraction
 } from 'discord.js';
 
-import { Command, CommandResponse } from '../structures/Command';
-import { DotsimusClient } from '../structures/DotsimusClient';
+import { Command } from '../../structures/Command';
+import type { DotsimusClient } from '../../structures/DotsimusClient';
+import type { CommandResponse } from '../../typings';
 
 export default class AboutCommand extends Command {
     constructor(client: DotsimusClient) {
@@ -41,7 +42,7 @@ export default class AboutCommand extends Command {
         });
     }
 
-    async execute(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
+    async execute(interaction: ChatInputCommandInteraction) {
         switch (interaction.options.getSubcommand()) {
             case 'me':
                 return this.executeMe(interaction);

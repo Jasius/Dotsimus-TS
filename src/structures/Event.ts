@@ -1,6 +1,6 @@
-import { ClientEvents } from 'discord.js';
+import type { ClientEvents } from 'discord.js';
 
-import { DotsimusClient } from './DotsimusClient';
+import type { DotsimusClient } from './DotsimusClient';
 
 interface EventOptions {
     name: keyof ClientEvents;
@@ -18,5 +18,5 @@ export abstract class Event implements EventOptions {
         this.once = options.once;
     }
 
-    abstract execute(...args: any[]): Promise<any>;
+    abstract execute(...args: any[]): void | Promise<void>;
 }

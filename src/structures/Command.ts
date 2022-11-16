@@ -1,34 +1,31 @@
 import {
     ApplicationCommandType,
-    ChatInputApplicationCommandData,
-    CommandInteraction,
-    InteractionResponse,
-    Message,
-    PermissionResolvable,
-    SlashCommandOptionsOnlyBuilder,
-    SlashCommandSubcommandsOnlyBuilder
+    type ChatInputApplicationCommandData,
+    type ChatInputCommandInteraction,
+    type PermissionResolvable,
+    type SlashCommandOptionsOnlyBuilder,
+    type SlashCommandSubcommandsOnlyBuilder
 } from 'discord.js';
 
-import { DotsimusClient } from './DotsimusClient';
+import type { CommandResponse } from '../typings';
+import type { DotsimusClient } from './DotsimusClient';
 
 interface CommandOptions {
     name: string;
     description?: string;
-    options: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
+    options?: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
     clientPermissions?: PermissionResolvable;
     userPermissions?: PermissionResolvable;
     dmPermission?: boolean;
 }
 
-export type CommandResponse = Message | InteractionResponse;
-
 export abstract class Command implements CommandOptions {
     client: DotsimusClient<true>;
     name: string;
     description?: string;
-    options: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
-    clientPermissions?: PermissionResolvable | undefined;
-    userPermissions?: PermissionResolvable | undefined;
+    options?: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
+    clientPermissions?: PermissionResolvable;
+    userPermissions?: PermissionResolvable;
     dmPermission?: boolean;
 
     constructor(client: DotsimusClient<true>, options: CommandOptions) {
@@ -48,9 +45,9 @@ export abstract class Command implements CommandOptions {
             defaultMemberPermissions: this.userPermissions,
             dmPermission: this.dmPermission,
             type: ApplicationCommandType.ChatInput,
-            options: this.options.options.map((o) => o.toJSON())
+            options: this.options?.options.map((o) => o.toJSON())
         };
     }
 
-    abstract execute(interaction: CommandInteraction): Promise<CommandResponse>;
+    abstract execute(interaction: ChatInputCommandInteraction): Promise<CommandResponse>;
 }

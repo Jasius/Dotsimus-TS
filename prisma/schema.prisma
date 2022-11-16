@@ -1,0 +1,27 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ServersConfig {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  joinDate     Int
+  serverId     String  @unique
+  serverName   String
+  prefix       String  @default("!")
+  isSubscribed Boolean @default(false)
+  memberCount  Int
+}
+
+model WatchKeyword {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String
+  serverId     String
+  watchedWords String[]
+
+  @@unique([userId, serverId])
+}
