@@ -3,7 +3,6 @@ import {
     ButtonBuilder,
     ButtonStyle,
     EmbedBuilder,
-    PermissionFlagsBits,
     SelectMenuBuilder,
     SlashCommandBuilder,
     type ChatInputCommandInteraction,
@@ -20,7 +19,6 @@ export default class AboutCommand extends Command {
             name: 'watch',
             description: 'Sends a direct message to you whenever keyword that you track gets mentioned.',
             dmPermission: false,
-            clientPermissions: PermissionFlagsBits.Administrator,
             options: new SlashCommandBuilder()
                 .addSubcommand((subcommand) =>
                     subcommand.setName('remove').setDescription('Allows to remove tracked keywords.')

@@ -33,7 +33,6 @@ export default class InteractionCreateEvent extends Event {
                         ephemeral: true,
                         files: [ohSimusAsset]
                     });
-                    return;
                 }
             };
 
@@ -43,10 +42,14 @@ export default class InteractionCreateEvent extends Event {
 
                 if (!command) return;
 
-                if (interaction.guild && command.clientPermissions)
+                if (interaction.guild && command.clientPermissions) {
                     await checkPermissions(me!, command.clientPermissions);
-                if (interaction.guild && command.userPermissions)
+                    return;
+                }
+                if (interaction.guild && command.userPermissions) {
                     await checkPermissions(member!, command.userPermissions);
+                    return;
+                }
 
                 if (cooldown && cooldown === interaction.commandName) {
                     await interaction.reply({
@@ -68,10 +71,14 @@ export default class InteractionCreateEvent extends Event {
 
                 if (!contextMenu) return;
 
-                if (interaction.guild && contextMenu.clientPermissions)
+                if (interaction.guild && contextMenu.clientPermissions) {
                     await checkPermissions(me!, contextMenu.clientPermissions);
-                if (interaction.guild && contextMenu.userPermissions)
+                    return;
+                }
+                if (interaction.guild && contextMenu.userPermissions) {
                     await checkPermissions(member!, contextMenu.userPermissions);
+                    return;
+                }
 
                 await contextMenu.execute(interaction);
             }
@@ -81,10 +88,14 @@ export default class InteractionCreateEvent extends Event {
 
                 if (!component) return;
 
-                if (interaction.guild && component.clientPermissions)
+                if (interaction.guild && component.clientPermissions) {
                     await checkPermissions(me!, component.clientPermissions);
-                if (interaction.guild && component.userPermissions)
+                    return;
+                }
+                if (interaction.guild && component.userPermissions) {
                     await checkPermissions(member!, component.userPermissions);
+                    return;
+                }
 
                 await component.execute(interaction);
             }
