@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import './utils/validateEnv';
+import './utils/functions/validateEnv';
 
 import { DotsimusClient } from './structures/DotsimusClient';
 

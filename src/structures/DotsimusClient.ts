@@ -1,13 +1,13 @@
-import type { ServersConfig } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import Topgg from '@top-gg/sdk';
 import { Client, Collection, type ApplicationCommandData } from 'discord.js';
 import glob from 'glob';
 import type { Logger } from 'pino';
 
 import { clientOptions, isProd } from '../constants';
-import { ClientUtils } from '../utils/ClientUtils';
-import logger from '../utils/logger';
-import { PrismaUtils } from '../utils/PrismaUtils';
+import logger from '../utils/functions/logger';
+import { createPrismaMapCache } from '../utils/middleware/prismaMapCache';
+import { ClientUtils } from '../utils/structures/ClientUtils';
 import type { ActiveUser } from './../typings';
 import { Command } from './Command';
 import { Component } from './Component';
@@ -15,31 +15,31 @@ import { ContextMenu } from './ContextMenu';
 import type { Event } from './Event';
 
 export class DotsimusClient<Ready extends boolean = boolean> extends Client<Ready> {
+    protected prismaCache: Collection<string, any>;
+
+    activeUsers: ActiveUser[];
     commands: Collection<string, Command>;
     components: Collection<string, Component>;
     contextMenus: Collection<string, ContextMenu>;
     cooldowns: Collection<string, string>;
     logger: Logger;
-    prisma: PrismaUtils;
+    prisma: PrismaClient;
     utils: ClientUtils;
     topgg?: Topgg.Api;
-
-    // Caching
-    activeUsersCache: ActiveUser[];
-    serversConfigCache: Collection<string, ServersConfig>;
 
     constructor() {
         super(clientOptions);
 
+        this.prismaCache = new Collection();
+
+        this.activeUsers = [];
         this.commands = new Collection();
         this.components = new Collection();
         this.contextMenus = new Collection();
         this.cooldowns = new Collection();
         this.logger = logger;
-        this.prisma = new PrismaUtils();
+        this.prisma = new PrismaClient();
         this.utils = new ClientUtils(this);
-        this.activeUsersCache = [];
-        this.serversConfigCache = new Collection();
     }
 
     async handleEvents(): Promise<void> {
@@ -82,21 +82,6 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
         this.application.commands.set(commands);
     }
 
-    async refreshServerConfigCache() {
-        for (const [guildId, guild] of this.guilds.cache) {
-            const me = await guild.members.fetchMe();
-
-            const serverConfig = await this.prisma.saveServerConfig(guildId, {
-                joinDate: me.joinedTimestamp ?? Date.now(),
-                serverId: guildId,
-                serverName: guild.name,
-                memberCount: guild.memberCount
-            });
-
-            this.serversConfigCache.set(guildId, serverConfig);
-        }
-    }
-
     async start(token?: string): Promise<void> {
         if (isProd && process.env.TOPGG_TOKEN) {
             this.topgg = new Topgg.Api(process.env.TOPGG_TOKEN);
@@ -104,7 +89,15 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
             throw new Error('Missing TOPGG_TOKEN in production.');
         }
 
-        await this.prisma.client.$connect();
+        await this.prisma.$connect();
+
+        const cacheMiddleware = createPrismaMapCache({
+            cache: this.prismaCache,
+            models: ['ServersConfig', 'WatchKeyword']
+        });
+
+        this.prisma.$use(cacheMiddleware);
+
         await this.handleEvents();
         await this.login(token);
     }

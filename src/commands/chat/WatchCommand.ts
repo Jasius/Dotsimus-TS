@@ -3,8 +3,8 @@ import {
     ButtonBuilder,
     ButtonStyle,
     EmbedBuilder,
-    SelectMenuBuilder,
     SlashCommandBuilder,
+    StringSelectMenuBuilder,
     type ChatInputCommandInteraction,
     type SelectMenuComponentOptionData
 } from 'discord.js';
@@ -54,7 +54,7 @@ export default class AboutCommand extends Command {
     }
 
     async executeRemove(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
-        const watchedKeywords = await this.client.prisma.getUserWatchedKeywords(
+        const watchedKeywords = await this.client.utils.getUserWatchedKeywords(
             interaction.user.id,
             interaction.guild!.id
         );
@@ -70,8 +70,8 @@ export default class AboutCommand extends Command {
             value: word
         }));
 
-        const keywordRow = new ActionRowBuilder<SelectMenuBuilder>().setComponents(
-            new SelectMenuBuilder()
+        const keywordRow = new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+            new StringSelectMenuBuilder()
                 .setCustomId('removeKeywords')
                 .setMaxValues(options.length)
                 .setMinValues(1)
@@ -91,7 +91,7 @@ export default class AboutCommand extends Command {
     async executeAdd(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
         const keyword = interaction.options.getString('keyword', true).toLowerCase();
 
-        const { watchedWords } = await this.client.prisma.saveWatchedKeywords(
+        const { watchedWords } = await this.client.utils.setWatchedKeywords(
             interaction.user.id,
             interaction.guild!.id,
             [keyword]
@@ -117,12 +117,12 @@ export default class AboutCommand extends Command {
     }
 
     async executeList(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
-        const watchedKeywords = await this.client.prisma.getUserWatchedKeywords(
+        const watchedKeywords = await this.client.utils.getUserWatchedKeywords(
             interaction.user.id,
             interaction.guild!.id
         );
 
-        if (!watchedKeywords?.watchedWords.length) {
+        if (!watchedKeywords?.watchedWords?.length) {
             return interaction.editReply(
                 "You aren't tracking any keywords for this server. Track words by using the `/watch` command!"
             );

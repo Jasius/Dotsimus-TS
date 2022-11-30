@@ -11,7 +11,7 @@ export default class TypingStartEvent extends Event {
     async execute({ channel, user }: Typing) {
         if (channel.type === ChannelType.DM) return;
 
-        this.client.activeUsersCache.push({
+        this.client.activeUsers.push({
             userId: user.id,
             guildId: channel.guild.id,
             typingTimestamp: Date.now()

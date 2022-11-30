@@ -12,12 +12,15 @@ export default class ReadyEvent extends Event {
         client.logger.info(`Logged in as ${client.user.tag}.`);
 
         client.user.setActivity('Dotsimus.com', { type: ActivityType.Watching });
-        await this.client.refreshServerConfigCache();
+
+        await this.client.utils.refreshServerConfigs();
+        await this.client.utils.refreshServerWatchKeywords();
+
         await client.handleInteractions();
 
         setInterval(() => {
-            // Clears the `activeUsersCache` every 30 seconds
-            client.activeUsersCache = client.activeUsersCache.filter(
+            // Clears the `activeUsers` every 30 seconds
+            client.activeUsers = client.activeUsers.filter(
                 (activeUser) => Date.now() > activeUser.typingTimestamp + 30 * 1000
             );
         }, 30 * 1000);

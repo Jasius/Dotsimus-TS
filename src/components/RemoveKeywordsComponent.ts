@@ -11,7 +11,7 @@ export default class RemoveKeywordsComponent extends Component {
     async execute(interaction: SelectMenuInteraction) {
         const keywords = interaction.values;
 
-        await this.client.prisma.removeWatchedKeywords(interaction.user.id, interaction.guild!.id, keywords);
+        await this.client.utils.deleteWatchedKeywords(interaction.user.id, interaction.guild!.id, keywords);
 
         return interaction.update({ content: `Removed ${keywords.length} keyword(s).`, components: [] });
     }

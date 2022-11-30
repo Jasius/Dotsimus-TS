@@ -9,7 +9,7 @@ export default class DisableTrackingComponent extends Component {
     }
 
     async execute(interaction: ButtonInteraction) {
-        await this.client.prisma.removeWatchedKeywords(interaction.user.id, interaction.guild!.id);
+        await this.client.utils.deleteWatchedKeywords(interaction.user.id, interaction.guild!.id);
 
         return interaction.update({ content: 'Disabled tracking for all keywords.', components: [] });
     }

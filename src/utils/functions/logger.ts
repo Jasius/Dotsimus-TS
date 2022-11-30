@@ -1,6 +1,6 @@
 import pino from 'pino';
 
-import { isProd } from '../constants';
+import { isProd } from '../../constants';
 
 const logger = pino({
     level: isProd ? 'info' : 'debug',
