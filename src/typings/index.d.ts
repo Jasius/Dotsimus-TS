@@ -1,10 +1,9 @@
 import { ApplicationCommandType, InteractionResponse, Message } from 'discord.js';
 
 export interface ActiveUser {
-    userId: string;
-    guildId: string;
-    typingTimestamp: number;
+	userId: string;
+	guildId: string;
+	typingTimestamp: number;
 }
 
 export type CommandResponse = Message | InteractionResponse;
-export type ContextMenuType = ApplicationCommandType.Message | ApplicationCommandType.User;

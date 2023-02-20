@@ -1,30 +1,13 @@
-import type { MessageComponentInteraction, PermissionResolvable } from 'discord.js';
+import { MessageComponentInteraction } from 'discord.js';
 
 import type { CommandResponse } from '../typings';
-import type { DotsimusClient } from './DotsimusClient';
+import { BaseInteraction, BaseInteractionOptions } from './BaseInteraction.js';
+import { DotsimusClient } from './DotsimusClient.js';
 
-interface ComponentOptions {
-    name: string;
-    clientPermissions?: PermissionResolvable;
-    userPermissions?: PermissionResolvable;
-}
+export abstract class Component extends BaseInteraction implements BaseInteractionOptions {
+	constructor(client: DotsimusClient<true>, options: BaseInteractionOptions) {
+		super(client, options);
+	}
 
-export abstract class Component implements ComponentOptions {
-    client: DotsimusClient<true>;
-    name: string;
-    clientPermissions?: PermissionResolvable;
-    userPermissions?: PermissionResolvable;
-
-    constructor(client: DotsimusClient<true>, options: ComponentOptions) {
-        this.client = client;
-        this.name = options.name;
-        this.clientPermissions = options.clientPermissions;
-        this.userPermissions = options.userPermissions;
-    }
-
-    toJSON() {
-        return { customId: this.name };
-    }
-
-    abstract execute(interaction: MessageComponentInteraction): Promise<CommandResponse>;
+	abstract execute(interaction: MessageComponentInteraction): Promise<CommandResponse>;
 }

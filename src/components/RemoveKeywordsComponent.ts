@@ -1,18 +1,18 @@
-import type { SelectMenuInteraction } from 'discord.js';
+import type { StringSelectMenuInteraction } from 'discord.js';
 
-import { Component } from '../structures/Component';
-import type { DotsimusClient } from '../structures/DotsimusClient';
+import { Component } from '../structures/Component.js';
+import type { DotsimusClient } from '../structures/DotsimusClient.js';
 
 export default class RemoveKeywordsComponent extends Component {
-    constructor(client: DotsimusClient) {
-        super(client, { name: 'removeKeywords' });
-    }
+	constructor(client: DotsimusClient) {
+		super(client, { name: 'removeKeywords' });
+	}
 
-    async execute(interaction: SelectMenuInteraction) {
-        const keywords = interaction.values;
+	async execute(interaction: StringSelectMenuInteraction) {
+		const keywords = interaction.values;
 
-        await this.client.utils.deleteWatchedKeywords(interaction.user.id, interaction.guild!.id, keywords);
+		await this.client.utils.deleteWatchedKeywords(interaction.user.id, interaction.guild!.id, keywords);
 
-        return interaction.update({ content: `Removed ${keywords.length} keyword(s).`, components: [] });
-    }
+		return interaction.update({ content: `Removed ${keywords.length} keyword(s).`, components: [] });
+	}
 }
