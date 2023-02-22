@@ -5,8 +5,10 @@ import { z } from 'zod';
 (function () {
 	const ProcessEnv = z.object({
 		NODE_ENV: z.string().regex(/^(production|development)$/),
-		DISCORD_TOKEN: z.string(),
 		DATABASE_URL: z.string().url(),
+		DISCORD_TOKEN: z.string(),
+		OWNER_ID: z.string(),
+		PERSPECTIVE_KEY: z.string(),
 		TOPGG_TOKEN: z.string().optional(),
 	});
 

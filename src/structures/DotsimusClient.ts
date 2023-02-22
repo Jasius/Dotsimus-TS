@@ -20,9 +20,7 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 	protected cache: LRU<string, unknown>;
 
 	activeUsers: ActiveUser[];
-	commands: Collection<string, BaseInteraction>;
-	// components: Collection<string, Component>;
-	// contextMenus: Collection<string, ContextMenu>;
+	interactions: Collection<string, BaseInteraction>;
 	cooldowns: Collection<string, string>;
 	logger: Logger;
 	prisma: PrismaClient;
@@ -32,19 +30,17 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 	constructor() {
 		super(clientOptions);
 
-		this.cache = new LRU({ max: 500, ttl: 1000 * 60 * 5 });
+		this.cache = new LRU({ max: 500, ttl: 30 * 1000 });
 
 		this.activeUsers = [];
-		this.commands = new Collection();
-		// this.components = new Collection();
-		// this.contextMenus = new Collection();
+		this.interactions = new Collection();
 		this.cooldowns = new Collection();
 		this.logger = logger;
 		this.prisma = new PrismaClient();
 		this.utils = new ClientUtils(this);
 	}
 
-	async handleEvents(): Promise<void> {
+	async handleEvents() {
 		const files = glob.sync(`${isProd ? 'build' : 'src'}/events/**/*.{js,ts}`);
 
 		for (const file of files) {
@@ -60,7 +56,7 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 		}
 	}
 
-	async handleInteractions(): Promise<void> {
+	async handleInteractions() {
 		if (!this.isReady()) throw new Error('Client not ready.');
 
 		const commands: ApplicationCommandData[] = [];
@@ -70,7 +66,7 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 			const interaction = await this.utils.importStructure<Command | Component | ContextMenu>(file);
 
 			if (!interaction) continue;
-			this.commands.set(interaction.name, interaction);
+			this.interactions.set(interaction.name, interaction);
 
 			if (interaction instanceof Component) continue;
 			commands.push(interaction.toJSON());
@@ -79,7 +75,7 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 		this.application.commands.set(commands);
 	}
 
-	async start(token?: string): Promise<void> {
+	async start(token?: string) {
 		if (isProd) {
 			if (!process.env.TOPGG_TOKEN) {
 				throw new Error('Environment variable "TOPGG_TOKEN" is not defined.');

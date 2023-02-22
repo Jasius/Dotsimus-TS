@@ -7,6 +7,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Alert {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId  String  @unique
+  threshold Float
+  channelId String
+  mention   Mention
+}
+
 model ServersConfig {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
   joinDate     Int
@@ -17,6 +25,17 @@ model ServersConfig {
   memberCount  Int
 }
 
+model UserInfractions {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  serverId  String
+  userId    String
+  userName  String
+  isUserNew Boolean
+  message   Message
+
+  @@unique([userId, serverId])
+}
+
 model WatchKeyword {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   userId       String
@@ -24,4 +43,20 @@ model WatchKeyword {
   watchedWords String[]
 
   @@unique([userId, serverId])
+}
+
+enum MentionType {
+  user
+  role
+}
+
+type Mention {
+  type MentionType
+  id   String
+}
+
+type Message {
+  timestamp Int
+  message   String
+  toxicity  Float
 }

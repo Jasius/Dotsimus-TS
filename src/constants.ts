@@ -4,6 +4,7 @@ export const clientOptions: ClientOptions = {
 	intents: [
 		GatewayIntentBits.DirectMessages,
 		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.GuildMessageTyping,
 		GatewayIntentBits.GuildPresences,

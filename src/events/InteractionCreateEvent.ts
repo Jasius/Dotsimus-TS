@@ -1,12 +1,13 @@
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	CommandInteraction,
 	ContextMenuCommandInteraction,
 	Events,
 	MessageComponentInteraction,
 	PermissionsBitField,
-	PermissionsString,
 	type InteractionReplyOptions,
-	type PermissionResolvable,
 } from 'discord.js';
 
 import { ohsimusAsset } from '../constants.js';
@@ -19,13 +20,37 @@ export default class InteractionCreateEvent extends Event {
 	}
 
 	async execute(interaction: CommandInteraction | MessageComponentInteraction | ContextMenuCommandInteraction) {
-		if (!interaction.inCachedGuild()) return;
+		if (!interaction.inCachedGuild()) {
+			const dmButtonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setLabel('Join Dotsimus Server')
+					.setURL('https://discord.gg/XAFXecKFRG')
+					.setStyle(ButtonStyle.Link),
+				new ButtonBuilder()
+					.setLabel('Get Dotsimus')
+					.setURL(
+						'https://discord.com/oauth2/authorize?client_id=731190736996794420&permissions=17247366359&redirect_uri=https%3A%2F%2Fdotsimus.com&response_type=code&scope=bot%20identify%20applications.commands',
+					)
+					.setStyle(ButtonStyle.Link),
+			);
+
+			await interaction.reply({
+				content:
+					'Oh snap! Commands are only available within servers. You can test commands freely on Dotsimus server.',
+				ephemeral: true,
+				files: [ohsimusAsset],
+				components: [dmButtonsRow],
+			});
+			return;
+		}
 
 		try {
 			const guildMembers = interaction.guild.members;
 
-			const commandKey = interaction.isMessageComponent() ? interaction.customId : interaction.commandName;
-			const command = this.client.commands.get(commandKey);
+			const interName = interaction.isCommand() ? interaction.commandName : interaction.customId;
+			const inter = this.client.interactions.get(interName);
+
+			if (!inter) return;
 
 			if (interaction.isChatInputCommand()) {
 				const cooldown = this.client.cooldowns.get(interaction.user.id);
@@ -43,11 +68,9 @@ export default class InteractionCreateEvent extends Event {
 				setTimeout(() => this.client.cooldowns.delete(interaction.user.id), 5000);
 			}
 
-			if (!command) return;
-
-			if (!guildMembers.me?.permissions.has(command.clientPermissions || [])) {
+			if (!guildMembers.me?.permissions.has(inter.clientPermissions || [])) {
 				const permissionsString =
-					'**' + new PermissionsBitField(command.clientPermissions).toArray().join('**, **') + '**';
+					'**' + new PermissionsBitField(inter.clientPermissions).toArray().join('**, **') + '**';
 
 				await interaction.reply({
 					content: `Oh snap! I don\'t have sufficient permissions to execute this command. Missing: ${permissionsString}`,
@@ -56,9 +79,8 @@ export default class InteractionCreateEvent extends Event {
 				});
 			}
 
-			if (!interaction.member.permissions.has(command.userPermissions || [])) {
-				const permissionsString =
-					'**' + new PermissionsBitField(command.userPermissions).toArray().join('**, **') + '**';
+			if (!interaction.member.permissions.has(inter.userPermissions || [])) {
+				const permissionsString = '**' + new PermissionsBitField(inter.userPermissions).toArray().join('**, **') + '**';
 
 				await interaction.reply({
 					content: `Oh snap! You don\'t have sufficient permissions to execute this command. Missing: ${permissionsString}`,
@@ -67,7 +89,7 @@ export default class InteractionCreateEvent extends Event {
 				});
 			}
 
-			await command.execute(interaction);
+			await inter.execute(interaction);
 		} catch (error) {
 			this.client.logger.error(error);
 

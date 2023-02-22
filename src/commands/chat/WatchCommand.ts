@@ -18,7 +18,6 @@ export default class AboutCommand extends Command {
 		super(client, {
 			name: 'watch',
 			description: 'Sends a direct message to you whenever keyword that you track gets mentioned.',
-			dmPermission: false,
 			options: new SlashCommandBuilder()
 				.addSubcommand((subcommand) =>
 					subcommand.setName('remove').setDescription('Allows to remove tracked keywords.'),
@@ -54,7 +53,7 @@ export default class AboutCommand extends Command {
 	}
 
 	async executeRemove(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
-		const watchedKeywords = await this.client.utils.getUserWatchedKeywords(interaction.user.id, interaction.guild!.id);
+		const watchedKeywords = await this.client.utils.getWatchedKeywords(interaction.user.id, interaction.guild!.id);
 
 		if (!watchedKeywords?.watchedWords.length) {
 			return interaction.editReply(
@@ -62,7 +61,7 @@ export default class AboutCommand extends Command {
 			);
 		}
 
-		const options: SelectMenuComponentOptionData[] = watchedKeywords.watchedWords.map((word) => ({
+		const options = watchedKeywords.watchedWords.map<SelectMenuComponentOptionData>((word) => ({
 			label: word,
 			value: word,
 		}));
@@ -88,7 +87,7 @@ export default class AboutCommand extends Command {
 	async executeAdd(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
 		const keyword = interaction.options.getString('keyword', true).toLowerCase();
 
-		const { watchedWords } = await this.client.utils.setWatchedKeywords(interaction.user.id, interaction.guild!.id, [
+		const { watchedWords } = await this.client.utils.saveWatchedKeywords(interaction.user.id, interaction.guild!.id, [
 			keyword,
 		]);
 
@@ -110,9 +109,9 @@ export default class AboutCommand extends Command {
 	}
 
 	async executeList(interaction: ChatInputCommandInteraction): Promise<CommandResponse> {
-		const watchedKeywords = await this.client.utils.getUserWatchedKeywords(interaction.user.id, interaction.guild!.id);
+		const watchedKeywords = await this.client.utils.getWatchedKeywords(interaction.user.id, interaction.guild!.id);
 
-		if (!watchedKeywords?.watchedWords?.length) {
+		if (!watchedKeywords?.watchedWords.length) {
 			return interaction.editReply(
 				"You aren't tracking any keywords for this server. Track words by using the `/watch` command!",
 			);

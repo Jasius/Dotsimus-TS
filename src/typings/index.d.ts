@@ -6,4 +6,9 @@ export interface ActiveUser {
 	typingTimestamp: number;
 }
 
+export interface AnalyzedMessage {
+	content: string;
+	attributeScores: Toxicity;
+}
+
 export type CommandResponse = Message | InteractionResponse;
