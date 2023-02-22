@@ -1,7 +1,7 @@
 import path from 'node:path';
 
-import { Prisma } from '@prisma/client';
-import { ColorResolvable } from 'discord.js';
+import { MentionType, Message, Prisma } from '@prisma/client';
+import { ColorResolvable, Guild } from 'discord.js';
 
 import { Command } from '../../structures/Command.js';
 import { Component } from '../../structures/Component.js';
@@ -48,42 +48,85 @@ export class ClientUtils {
 		return `#${f(0)}${f(8)}${f(4)}`;
 	}
 
+	saveAlert(serverId: string, mention: Prisma.MentionCreateInput, threshold: number, channelId: string) {
+		const alertConfig: Prisma.AlertCreateInput = {
+			serverId,
+			channelId,
+			mention,
+			threshold,
+		};
+
+		return this.client.prisma.alert.upsert({
+			create: alertConfig,
+			update: alertConfig,
+			where: { serverId },
+		});
+	}
+
+	getAlert(serverId: string) {
+		return this.client.prisma.alert.findUnique({ where: { serverId } });
+	}
+
+	deleteAlert(serverId: string) {
+		return this.client.prisma.alert.delete({ where: { serverId } });
+	}
+
+	getInfractions(userId: string, serverId: string) {
+		return this.client.prisma.userInfractions.findMany({ where: { userId, serverId } });
+	}
+
+	saveInfraction(input: Prisma.UserInfractionsCreateInput) {
+		return this.client.prisma.userInfractions.upsert({
+			create: input,
+			update: input,
+			where: { userId_serverId: { userId: input.userId, serverId: input.serverId } },
+		});
+	}
+
 	getServerConfig(serverId: string) {
 		return this.client.prisma.serversConfig.findUnique({ where: { serverId } });
 	}
 
-	setServerConfig(serverId: string, serverConfig: Prisma.ServersConfigCreateInput) {
+	saveServerConfig({ id, members, memberCount, name }: Guild) {
+		const me = members.me;
+		const serverConfig: Prisma.ServersConfigCreateInput = {
+			joinDate: me?.joinedTimestamp ?? Date.now(),
+			serverId: id,
+			serverName: name,
+			memberCount,
+		};
+
 		return this.client.prisma.serversConfig.upsert({
 			create: serverConfig,
 			update: serverConfig,
-			where: { serverId },
+			where: { serverId: id },
 		});
+	}
+
+	getWatchedKeywords(userId: string, serverId: string) {
+		return this.client.prisma.watchKeyword.findUnique({ where: { userId_serverId: { userId, serverId } } });
 	}
 
 	getServerWatchedKeywords(serverId: string) {
 		return this.client.prisma.watchKeyword.findMany({ where: { serverId } });
 	}
 
-	getUserWatchedKeywords(userId: string, serverId: string) {
-		return this.client.prisma.watchKeyword.findUnique({ where: { userId_serverId: { userId, serverId } } });
-	}
+	async saveWatchedKeywords(userId: string, serverId: string, watchedWords: string[]) {
+		const watchedKeywords = await this.getWatchedKeywords(userId, serverId);
+		let combinedWords = watchedWords;
 
-	async setWatchedKeywords(userId: string, serverId: string, watchedWords: string[]) {
-		const watchedKeywords = await this.getUserWatchedKeywords(userId, serverId);
-
-		if (watchedKeywords) watchedWords.push(...watchedKeywords.watchedWords);
-
-		watchedWords = [...new Set(watchedWords)];
+		if (watchedKeywords) combinedWords.push(...watchedKeywords.watchedWords);
+		combinedWords = [...new Set(combinedWords)];
 
 		return this.client.prisma.watchKeyword.upsert({
-			create: { userId, serverId, watchedWords },
-			update: { userId, serverId, watchedWords },
+			create: { userId, serverId, watchedWords: combinedWords },
+			update: { userId, serverId, watchedWords: combinedWords },
 			where: { userId_serverId: { userId, serverId } },
 		});
 	}
 
 	async deleteWatchedKeywords(userId: string, serverId: string, watchedWords?: string[]) {
-		const watchedKeywords = await this.getUserWatchedKeywords(userId, serverId);
+		const watchedKeywords = await this.getWatchedKeywords(userId, serverId);
 
 		let difference = watchedKeywords?.watchedWords.filter((word) => !watchedWords?.includes(word));
 		difference = [...new Set(difference)];
@@ -95,14 +138,8 @@ export class ClientUtils {
 	}
 
 	async refreshServerConfigs() {
-		for (const [guildId, guild] of this.client.guilds.cache) {
-			const me = await guild.members.fetchMe();
-			await this.setServerConfig(guildId, {
-				joinDate: me.joinedTimestamp ?? Date.now(),
-				serverId: guildId,
-				serverName: guild.name,
-				memberCount: guild.memberCount,
-			});
+		for (const [, guild] of this.client.guilds.cache) {
+			await this.saveServerConfig(guild);
 		}
 	}
 
