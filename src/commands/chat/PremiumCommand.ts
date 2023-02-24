@@ -40,7 +40,8 @@ export default class PremiumCommand extends Command {
 	}
 
 	async execute(interaction: ChatInputCommandInteraction) {
-		const isPremium = await this.client.utils.getServerConfig(interaction.guild!.id);
+		const isPremium = await this.client.utils.saveServerConfig(interaction.guild!);
+
 		if (!isPremium) {
 			return interaction.reply({
 				content:
@@ -66,13 +67,13 @@ export default class PremiumCommand extends Command {
 		await this.client.utils.saveAlert(interaction.guild!.id, { id: role.id, type: 'role' }, 0.6, channel.id);
 		await channel.send({
 			embeds: [
-				new EmbedBuilder()
-					.setColor('#0099ff')
+				new EmbedBuilder({ color: 0x0099ff })
 					.setTitle('Dotsimus Reports')
 					.setDescription(`This channel has been setup for Dotsimus reports.`)
 					.addFields({ name: 'Muted role', value: `<@&${role.id}>`, inline: false }),
 			],
 		});
+
 		return interaction.reply({
 			content: 'Configuration successful!',
 			ephemeral: true,
@@ -81,6 +82,7 @@ export default class PremiumCommand extends Command {
 
 	async executeDisable(interaction: ChatInputCommandInteraction) {
 		await this.client.utils.deleteAlert(interaction.guild!.id);
+
 		return interaction.reply({
 			content: 'Premium features disabled!',
 			ephemeral: true,

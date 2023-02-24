@@ -49,9 +49,9 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 			if (!event) continue;
 
 			if (event.once) {
-				this.once(event.name, (...args) => event.execute(...args));
+				this.once(event.name, (...args) => event.execute(...args).catch((e) => this.logger.error(e)));
 			} else {
-				this.on(event.name, (...args) => event.execute(...args));
+				this.on(event.name, (...args) => event.execute(...args).catch((e) => this.logger.error(e)));
 			}
 		}
 	}

@@ -83,14 +83,9 @@ export class ClientUtils {
 		});
 	}
 
-	getServerConfig(serverId: string) {
-		return this.client.prisma.serversConfig.findUnique({ where: { serverId } });
-	}
-
 	saveServerConfig({ id, members, memberCount, name }: Guild) {
-		const me = members.me;
 		const serverConfig: Prisma.ServersConfigCreateInput = {
-			joinDate: me?.joinedTimestamp ?? Date.now(),
+			joinDate: members.me?.joinedTimestamp ?? Date.now(),
 			serverId: id,
 			serverName: name,
 			memberCount,

@@ -18,5 +18,5 @@ export abstract class Event implements EventOptions {
 		this.once = options.once;
 	}
 
-	abstract execute(...args: any[]): void | Promise<void>;
+	abstract execute(...args: any[]): Promise<void>;
 }
