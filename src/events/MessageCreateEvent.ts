@@ -40,12 +40,12 @@ export default class MessageCreateEvent extends Event {
 					if (!refUser) throw new Error('This user does not exist');
 					await refUser.send(message.content);
 				} catch (error) {
-					await owner.send('❌ Failed to send the message.').catch((e) => this.client.logger.error(e));
+					await owner.send('❌ Failed to send the message.');
 				}
 			} else {
-				await owner
-					.send(`${message.author.id} ${message.author.username}#${message.author.discriminator}\n${message.content}`)
-					.catch((e) => this.client.logger.error(e));
+				await owner.send(
+					`${message.author.id} ${message.author.username}#${message.author.discriminator}\n${message.content}`,
+				);
 			}
 
 			return;
@@ -174,10 +174,21 @@ export default class MessageCreateEvent extends Event {
 					attachmentEmbeds.push(embed);
 				}
 
-				// TODO: Handle
+				const infraction = await this.client.utils.saveInfraction({
+					isUserNew: user.isNew,
+					message: {
+						message: removedContent,
+						timestamp: Date.now(),
+						toxicity,
+					},
+					serverId: message.guild.id,
+					userId: message.author.id,
+					userName: message.author.username,
+				});
+
 				const reportActions = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 					new StringSelectMenuBuilder()
-						.setCustomId('investigationDropdown')
+						.setCustomId(`investigationDropdown-${infraction.id}`)
 						.setPlaceholder('Choose investigation action')
 						.addOptions([
 							{
@@ -234,15 +245,15 @@ export default class MessageCreateEvent extends Event {
 				}
 
 				investigationEmbed.addFields(
-					{ name: 'User', value: `<@${message.author.id}>`, inline: true },
-					{ name: 'User ID', value: `${message.author.id}`, inline: true },
-					{ name: 'Is user new?', value: `${user.isNew ? 'Yes' : 'No'}`, inline: true },
+					{ name: 'User', value: message.author.toString(), inline: true },
+					{ name: 'User ID', value: message.author.id, inline: true },
+					{ name: 'Is user new?', value: user.isNew ? 'Yes' : 'No', inline: true },
 					{
 						name: 'Total infractions',
 						value: `${infractionCount >= 1 ? infractionCount : 'No infractions present.'}`,
 						inline: true,
 					},
-					{ name: 'Channel', value: `<#${message.channel.id}> | 🔗 [Message link](${infractionMessage.url})` },
+					{ name: 'Channel', value: `${message.channel.toString()} | 🔗 [Message link](${infractionMessage.url})` },
 				);
 
 				const hardCodedApplePerms = (member: GuildMember) =>

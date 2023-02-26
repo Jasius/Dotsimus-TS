@@ -56,7 +56,10 @@ export default class PremiumCommand extends Command {
 			case 'disable':
 				return this.executeDisable(interaction);
 			default:
-				return interaction.reply({ content: 'Subcommand not implemented.', ephemeral: true });
+				return interaction.reply({
+					content: "Oops, this one doesn't work just yet...",
+					ephemeral: true,
+				});
 		}
 	}
 
@@ -64,13 +67,18 @@ export default class PremiumCommand extends Command {
 		const role = interaction.options.getRole('role', true);
 		const channel = interaction.options.getChannel('channel', true) as TextChannel;
 
-		await this.client.utils.saveAlert(interaction.guild!.id, { id: role.id, type: 'role' }, 0.6, channel.id);
+		await this.client.utils.saveAlert({
+			serverId: interaction.guild!.id,
+			threshold: 0.6,
+			channelId: channel.id,
+			mention: { type: 'role', id: role.id },
+		});
 		await channel.send({
 			embeds: [
 				new EmbedBuilder({ color: 0x0099ff })
 					.setTitle('Dotsimus Reports')
 					.setDescription(`This channel has been setup for Dotsimus reports.`)
-					.addFields({ name: 'Muted role', value: `<@&${role.id}>`, inline: false }),
+					.addFields({ name: 'Muted role', value: role.toString(), inline: false }),
 			],
 		});
 

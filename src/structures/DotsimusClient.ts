@@ -4,6 +4,7 @@ import { Client, Collection, type ApplicationCommandData } from 'discord.js';
 import glob from 'glob';
 import LRU from 'lru-cache';
 import type { Logger } from 'pino';
+import { fileURLToPath } from 'url';
 
 import { clientOptions, isProd } from '../constants.js';
 import logger from '../utils/functions/logger.js';
@@ -66,6 +67,14 @@ export class DotsimusClient<Ready extends boolean = boolean> extends Client<Read
 			const interaction = await this.utils.importStructure<Command | Component | ContextMenu>(file);
 
 			if (!interaction) continue;
+
+			if (interaction.name.includes('-')) {
+				this.logger.warn(
+					`SKIPPING INTERACTION: Illegal characters in name, rename '${interaction.name}' and remove hyphen(s).`,
+				);
+				continue;
+			}
+
 			this.interactions.set(interaction.name, interaction);
 
 			if (interaction instanceof Component) continue;

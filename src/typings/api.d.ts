@@ -21,7 +21,7 @@ export interface PerspectiveResponse {
 	detectedLanguages: string[];
 }
 
-export interface Toxicity {
+export interface ToxicityAttributes {
 	toxicity: number;
 	insult: number;
 	combined: number;

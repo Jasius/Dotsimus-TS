@@ -8,6 +8,7 @@ import { Component } from '../../structures/Component.js';
 import { ContextMenu } from '../../structures/ContextMenu.js';
 import { DotsimusClient } from '../../structures/DotsimusClient.js';
 import { Event } from '../../structures/Event.js';
+import { pathToFileURL } from 'node:url';
 
 export class ClientUtils {
 	client: DotsimusClient;
@@ -18,11 +19,10 @@ export class ClientUtils {
 
 	async importStructure<T extends Command | Component | ContextMenu | Event>(file: string): Promise<T | null> {
 		try {
-			const filePath = path.resolve(process.cwd(), file);
-			const fileURL = new URL('file:///' + filePath);
-			const File = (await import(fileURL.href)).default;
+			const fileURL = pathToFileURL(file);
+			const Structure = (await import(fileURL.href)).default;
 
-			return new File(this.client);
+			return new Structure(this.client);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			this.client.logger.error(`${file.split('/').pop()}: ${message}`);
@@ -48,18 +48,11 @@ export class ClientUtils {
 		return `#${f(0)}${f(8)}${f(4)}`;
 	}
 
-	saveAlert(serverId: string, mention: Prisma.MentionCreateInput, threshold: number, channelId: string) {
-		const alertConfig: Prisma.AlertCreateInput = {
-			serverId,
-			channelId,
-			mention,
-			threshold,
-		};
-
+	saveAlert(alertConfig: Prisma.AlertCreateInput) {
 		return this.client.prisma.alert.upsert({
 			create: alertConfig,
 			update: alertConfig,
-			where: { serverId },
+			where: { serverId: alertConfig.serverId },
 		});
 	}
 
@@ -71,16 +64,20 @@ export class ClientUtils {
 		return this.client.prisma.alert.delete({ where: { serverId } });
 	}
 
+	getInfraction(id: string) {
+		return this.client.prisma.userInfractions.findUnique({ where: { id } });
+	}
+
 	getInfractions(userId: string, serverId: string) {
 		return this.client.prisma.userInfractions.findMany({ where: { userId, serverId } });
 	}
 
-	saveInfraction(input: Prisma.UserInfractionsCreateInput) {
-		return this.client.prisma.userInfractions.upsert({
-			create: input,
-			update: input,
-			where: { userId_serverId: { userId: input.userId, serverId: input.serverId } },
-		});
+	deleteInfraction(id: string) {
+		return this.client.prisma.userInfractions.delete({ where: { id } });
+	}
+
+	saveInfraction(data: Prisma.UserInfractionsCreateInput) {
+		return this.client.prisma.userInfractions.create({ data });
 	}
 
 	saveServerConfig({ id, members, memberCount, name }: Guild) {

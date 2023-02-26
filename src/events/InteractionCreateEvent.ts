@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 
 import { ohsimusAsset } from '../constants.js';
+import { BaseInteraction } from '../structures/BaseInteraction';
 import { DotsimusClient } from '../structures/DotsimusClient.js';
 import { Event } from '../structures/Event.js';
 
@@ -47,8 +48,15 @@ export default class InteractionCreateEvent extends Event {
 		try {
 			const guildMembers = interaction.guild.members;
 
-			const interName = interaction.isCommand() ? interaction.commandName : interaction.customId;
-			const inter = this.client.interactions.get(interName);
+			let inter: BaseInteraction | undefined;
+			if (interaction.isCommand()) {
+				inter = this.client.interactions.get(interaction.commandName);
+			} else {
+				inter = this.client.interactions.find((i) => {
+					const [commandName] = interaction.customId.split(/-+/g);
+					return i.name === commandName;
+				});
+			}
 
 			if (!inter) return;
 

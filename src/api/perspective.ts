@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-import { PerspectiveResponse, Toxicity } from './../typings/api.d';
+import { PerspectiveResponse, ToxicityAttributes } from './../typings/api.d';
 
-export async function getToxicity(content: string, doNotStore: boolean): Promise<Toxicity> {
+export async function getToxicity(content: string, doNotStore: boolean): Promise<ToxicityAttributes> {
 	const emojis =
 		/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g;
 	content = content.replace(emojis, '');

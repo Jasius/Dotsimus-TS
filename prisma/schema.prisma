@@ -32,8 +32,6 @@ model UserInfractions {
   userName  String
   isUserNew Boolean
   message   Message
-
-  @@unique([userId, serverId])
 }
 
 model WatchKeyword {

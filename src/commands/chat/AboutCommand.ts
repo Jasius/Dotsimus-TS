@@ -57,7 +57,10 @@ export default class AboutCommand extends Command {
 			case 'submit-a-review':
 				return this.executeSubmitReview(interaction);
 			default:
-				return interaction.reply({ content: 'Subcommand not implemented.', ephemeral: true });
+				return interaction.reply({
+					content: "Oops, this one doesn't work just yet...",
+					ephemeral: true,
+				});
 		}
 	}
 
